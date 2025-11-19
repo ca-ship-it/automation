@@ -22,11 +22,9 @@ def webhook():
 
         if mode == "subscribe" and token == VERIFY_TOKEN:
             print("✅ Webhook Verified")
-            return challenge, 200
+            
         else:
             print("❌ Verification Failed")
-            return "Verification failed", 403
-
     data = request.get_json()
     print("📩 Incoming Event:", data)
 
