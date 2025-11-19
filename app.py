@@ -7,7 +7,7 @@ from flask import Flask, request
 # ==========================
 
 PAGE_ACCESS_TOKEN = os.environ.get("PAGE_ACCESS_TOKEN")   # Render env var
-VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "instabot2025")
+VERIFY_TOKEN = "instabot2025"
 PORT = int(os.environ.get("PORT", 5000))  # Render yahan apna PORT dega
 
 app = Flask(__name__)
