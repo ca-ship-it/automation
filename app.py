@@ -6,11 +6,8 @@ from flask import Flask, request
 #  CONFIG
 # ==========================
 
-# Railway / env se
 PAGE_ACCESS_TOKEN = os.environ.get("PAGE_ACCESS_TOKEN")
-# Verify token ko hard-code kar dete hain taa-ke 100% match ho
 VERIFY_TOKEN = "instabot2025"
-
 PORT = int(os.environ.get("PORT", 5000))
 
 app = Flask(__name__)
@@ -30,39 +27,34 @@ def webhook():
 
         if mode == "subscribe" and token == VERIFY_TOKEN:
             print("✅ Webhook Verified")
-            # Facebook ko sirf challenge string chahiye
             return challenge, 200
         else:
             print("❌ Verification Failed")
             return "Verification failed", 403
 
     # ----- 2) EVENTS (POST) -----
-    # silent=True -> agar JSON na ho to error nahi, sirf None de
     data = request.get_json(silent=True) or {}
     print("📩 Incoming Event:", data)
 
-    if data.get("object") == "page":
+    obj = data.get("object")
+
+    # Messenger page messages OR Instagram DM (object: page / instagram)
+    if obj in ("page", "instagram"):
         for entry in data.get("entry", []):
+            # Naya format: entry["messaging"] for both Messenger + IG
+            for msg_event in entry.get("messaging", []):
+                sender_id = (msg_event.get("sender") or {}).get("id")
+                message = msg_event.get("message") or {}
+                text = message.get("text")
 
-            # 2a) Messenger messages
-            for messaging in entry.get("messaging", []):
-                sender_id = messaging.get("sender", {}).get("id")
-                message_text = (messaging.get("message") or {}).get("text")
+                # Optional: ignore echoes etc.
+                if not text or not sender_id:
+                    continue
 
-                if sender_id and message_text:
-                    send_auto_reply(sender_id)
+                print(f"📨 Message from {sender_id}: {text}")
+                send_auto_reply(sender_id)
 
-            # 2b) Instagram messages
-            for change in entry.get("changes", []):
-                value = change.get("value") or {}
-                if value.get("messaging_product") == "instagram":
-                    for msg in value.get("messages", []):
-                        ig_sender = msg.get("from")
-                        text_body = (msg.get("text") or {}).get("body")
-
-                        if ig_sender and text_body:
-                            send_auto_reply(ig_sender)
-
+    # Agar kisi aur type ka object aaye to bhi OK
     return "EVENT_RECEIVED", 200
 
 
