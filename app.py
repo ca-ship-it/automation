@@ -45,9 +45,15 @@ def webhook():
             for msg_event in entry.get("messaging", []):
                 sender_id = (msg_event.get("sender") or {}).get("id")
                 message = msg_event.get("message") or {}
+
+                # 🔹 Echo messages ignore (bot apne hi msg ko dobara reply na kare)
+                if message.get("is_echo"):
+                    print("↩️ Skipping echo message")
+                    continue
+
                 text = message.get("text")
 
-                # Optional: ignore echoes etc.
+                # Agar text ya sender na ho to skip
                 if not text or not sender_id:
                     continue
 
