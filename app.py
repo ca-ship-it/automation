@@ -92,5 +92,5 @@ def send_auto_reply(sender_id):
 # ==========================
 
 if __name__ == "__main__":
-    print(f"🚀 Bot Starting on port {PORT} ...")
+    print(f"🚀👍Bot Starting on port {PORT} ...")
     app.run(host="0.0.0.0", port=PORT)
